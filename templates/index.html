@@ -1,78 +1,47 @@
-<!doctype html>
-<html lang="en">
+<!doctype html ng-app="EuroMarkovApp">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>Welcome to Flask on OpenShift</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> 
+    <link href='http://fonts.googleapis.com/css?family=Muli' rel='stylesheet' type='text/css'>
+    <link href="{{ url_for('static', filename='style.css') }}" rel='stylesheet' type='text/css'>
+    <script type="text/javascript">
+        $(function() {
 
-  <link href='/css/site.css' rel='stylesheet' type='text/css' />
-</head>
-<body>
+                $('#filterform').submit(function(event) {
+                    event.preventDefault();
+                    var $form = $(this)
+                    startYear = $form.find("input[name='startYear']").val()
+                    endYear = $form.find("input[name='endYear']").val()
 
-<section class='container'>
-          <hgroup>
-            <h1>Welcome to Flask on OpenShift</h1>
-          </hgroup>
+                    var postData = {startYear: startYear ,endYear: endYear }
 
+                    postData = $('#filterform').serialize();
+                    var posting = $.post( "{{url_for('generate')}}", postData);
 
-        <div class="row">
-          <section class='col-xs-12 col-sm-6 col-md-6'>
-            <section>
-              <h2>Deploying code changes</h2>
-                <p>OpenShift uses the <a href="http://git-scm.com/">Git version control system</a> for your source code, and grants you access to it via the Secure Shell (SSH) protocol. In order to upload and download code to your application you need to give us your <a href="https://www.openshift.com/developers/remote-access">public SSH key</a>. You can upload it within the web console or install the <a href="https://www.openshift.com/developers/rhc-client-tools-install">RHC command line tool</a> and run <code>rhc setup</code> to generate and upload your key automatically.</p>
-                
-                <h3>Working in your local Git repository</h3>
-                <p>If you created your application from the command line and uploaded your SSH key, rhc will automatically download a copy of that source code repository (Git calls this 'cloning') to your local system.</p>
+                    posting.done(function(result) {
+                        console.log(result);
+                        $('#songTitle').html(result.songTitle)
+                        $('#songLyrics').html(result.songLyrics)
 
-                <p>If you created the application from the web console, you'll need to manually clone the repository to your local system. Copy the application's source code Git URL and then run:</p>
+                        });
 
-<pre>$ git clone &lt;git_url&gt; &lt;directory_to_create&gt;
+                    });
+                });
+            </script>
+            <title>EuroMarkov</title>
+        </head>
 
-# Within your project directory
-# Commit your changes and push to OpenShift
+        <div id="container">
+        <form id="filterform" method="post" action="{{ url_for('generate') }}">
+            <p>Start Year: <input type="text" name="startYear" value="1956" /> (1956) </p>
+            <p>End Year: <input type="text" name="endYear" value="2015" />  (2015) </p>
+            <div id='countryListDiv'>
+                {% for country in countryList %}
+                <input type="checkbox" name="country" value="{{country}}" /> {{country}} <br />
+                {% endfor %}
+            </div>
+            <input type="submit" value="Generate!"  id="generate"/>
+        </form>
 
-$ git commit -a -m 'Some commit message'
-$ git push</pre>
-
-
-                  <ul>
-                    <li><a href="https://www.openshift.com/developers/deploying-and-building-applications">Learn more about deploying and building your application</a></li>
-                    <li>See the README file in your local application Git repository for more information on the options for deploying applications.</li>
-                  </ul>
-            </section>
-            
-            
-          </section>
-          <section class="col-xs-12 col-sm-6 col-md-6">
-
-                <h2>Managing your application</h2>
-
-                <h3>Web Console</h3>
-                <p>You can use the OpenShift web console to enable additional capabilities via cartridges, add collaborator access authorizations, designate custom domain aliases, and manage domain memberships.</p>
-
-                <h3>Command Line Tools</h3>
-                <p>Installing the <a href="https://www.openshift.com/developers/rhc-client-tools-install">OpenShift RHC client tools</a> allows you complete control of your cloud environment. Read more on how to manage your application from the command line in our <a href="https://www.openshift.com/user-guide">User Guide</a>.
-                </p>
-
-                <h2>Development Resources</h2>
-                  <ul>
-                    <li><a href="https://www.openshift.com/developers">Developer Center</a></li>
-                    <li><a href="https://www.openshift.com/user-guide">User Guide</a></li>
-                    <li><a href="https://www.openshift.com/support">OpenShift Support</a></li>
-                    <li><a href="http://stackoverflow.com/questions/tagged/openshift">Stack Overflow questions for OpenShift</a></li>
-                    <li><a href="http://webchat.freenode.net/?randomnick=1&channels=openshift&uio=d4">IRC channel at #openshift on freenode.net</a></li>
-                    <li><a href="http://git-scm.com/documentation">Git documentation</a></li>
-                  </ul>
-
-
-          </section>
-        </div>
-
-        
-        <footer>
-          <div class="logo"><a href="https://www.openshift.com/"></a></div>
-        </footer>
-
-</section>
-</body>
-</html>
+        <h1 id='songTitle'>{{ songTitle }}</h1>
+        <div id='songLyrics'> </div>
+    </div>
